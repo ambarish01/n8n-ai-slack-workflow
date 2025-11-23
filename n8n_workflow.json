@@ -1,0 +1,435 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "trigger": [
+          "app_mention"
+        ],
+        "watchWorkspace": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1280,
+        -160
+      ],
+      "id": "957fac1e-138c-40af-a32f-58923fb06d51",
+      "name": "Slack Trigger",
+      "webhookId": "c07acf36-07d2-4c57-ab80-f451b332672f",
+      "credentials": {
+        "slackApi": {
+          "id": "fyzqFs00DdXG6LTn",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an expert n8n automation architect and instructor.\nCreate a beginner-friendly, Markdown-based build guide that explains how to build the requested workflow entirely inside n8n — from start to finish.\n\nTone & depth: patient, step-by-step, assume the reader is completely new to n8n.\nExplain what each node does, where to click in the interface, which fields to configure, why those fields matter, common mistakes to avoid, and how to test each part.\n\nFormatting rules (must follow exactly)\n\nStart with:\n:brain: n8n Workflow Plan — followed by a one-sentence overview.\n\nUse clear, bold section headers:\nOverview, Before You Start, Node Sequence, Node Configuration (Step-by-Step), Data Flow, Testing (End-to-End), Troubleshooting & Pitfalls, Next Improvements.\n\nUse numbered lists for ordered steps, and bullet points for short explanations.\n\nShow short expressions or snippets inline with backticks — e.g., {{$json.id}} (no triple backtick code blocks).\n\nKeep URLs, example field names, or values on their own lines where needed.\n\nKeep language concise but complete.\n\nContent Requirements\n\nBefore You Start:\nList everything the user must have before building the workflow — such as API keys, webhook URLs, credentials, or access permissions for external services used in the automation. Include how to create or retrieve them (e.g., where to find API tokens or test endpoints).\n\nNode Sequence:\nProvide a numbered list of all nodes in the order they should appear (e.g., Webhook → HTTP Request → Code → Database → Email → Execution Stop).\n\nNode Configuration (Step-by-Step):\nFor each node:\n\nExplain how to add it to the n8n canvas.\n\nSpecify exact settings for every critical field (e.g., URL, Method, Headers, Parameters).\n\nInclude example expressions such as {{$json[\"user_email\"]}}.\n\nExplain why each field is configured that way and what errors beginners often make.\n\nIf relevant, include how to reference data from previous nodes.\n\nData Flow:\nDescribe what data each node outputs (in JSON form) and how that data feeds into the next node.\n\nTesting:\nProvide step-by-step testing instructions:\n\nHow to manually execute nodes.\n\nWhat to check in the Execution Data panel.\n\nWhat a successful run looks like.\n\nHow to verify the final output.\n\nTroubleshooting & Pitfalls:\nList 5–8 common issues (e.g., 401 Unauthorized, empty items, mismatched JSON paths, pagination errors) and how to fix them.\n\nNext Improvements:\nOffer 3–5 ideas to improve the workflow, such as:\n\nAdding error handling or retry logic.\n\nUsing Cron to schedule runs.\n\nAdding input validation or logging.\n\nExpanding to other APIs or outputs.\n\nUser Request:\n\nReplace {{$json[\"response\"]}} with the user’s task or workflow idea.",
+              "role": "system"
+            },
+            {
+              "content": "=User request: {{$json[\"response\"]}}\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        448,
+        112
+      ],
+      "id": "",
+      "name": "Generate Build Plan",
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": ""
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "=C09MFJQ1Q66",
+          "mode": "id"
+        },
+        "text": "={{$json[\"message\"][\"content\"] || $json[\"content\"] || \"No plan generated.\"}}\n",
+        "otherOptions": {
+          "mrkdwn": true
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        992,
+        -32
+      ],
+      "id": "259f0ad1-94a2-470d-9087-24307d2018ea",
+      "name": "Send a message",
+      "webhookId": "db7cba40-5110-4397-b942-e48609217d1e",
+      "credentials": {
+        "slackApi": {
+          "id": "fyzqFs00DdXG6LTn",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e453986d-b263-4a75-abdc-373fa6b5357b",
+              "leftValue": "={{$json[\"is_audio\"]}}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -624,
+        16
+      ],
+      "id": "4d5edbc0-fc4e-415e-9cb0-d0508e58eb69",
+      "name": "Audio Gate"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3adf790c-aa7e-4fe4-8713-c22723451055",
+              "name": "=channel",
+              "value": "={{$json.channel}}",
+              "type": "string"
+            },
+            {
+              "id": "16da3d39-8efa-45ca-aac2-704f558257f7",
+              "name": "ts",
+              "value": "`{{$json.ts",
+              "type": "string"
+            },
+            {
+              "id": "fe4eafcd-78de-4fdc-8891-7a0b35d0c13c",
+              "name": "thread_ts",
+              "value": "`{{$json.thread_ts",
+              "type": "string"
+            },
+            {
+              "id": "26c13785-6071-407b-880e-13d84f8f85ff",
+              "name": "file_url",
+              "value": "={{$json.files[0].url_private_download}}",
+              "type": "string"
+            },
+            {
+              "id": "e445d1ee-b69a-44d8-9e05-b0abab5743c2",
+              "name": "filename",
+              "value": "`{{$json.files[0].name",
+              "type": "string"
+            },
+            {
+              "id": "56cfb71a-614d-4f1b-bedf-cdc646b05a07",
+              "name": "mimetype",
+              "value": "`{{$json.files[0].mimetype",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -368,
+        -240
+      ],
+      "id": "f483fbad-43f9-49e0-ad90-8bbf362f1ce0",
+      "name": "Set Audio Meta"
+    },
+    {
+      "parameters": {
+        "url": "={{$json[\"files\"][0][\"url_private_download\"]}}\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": ""
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -80,
+        -272
+      ],
+      "id": "92c8fa58-9e3d-4028-867a-35f1b3e94175",
+      "name": "Download Slack Audio"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Detect if Slack file is an audio file\nconst item = $json;\nlet isAudio = false;\n\nif (Array.isArray(item.files) && item.files.length > 0) {\n  const file = item.files[0];\n  if (\n    (file.mimetype && file.mimetype.startsWith('audio/')) ||\n    (file.filetype && ['mp3', 'm4a', 'wav', 'ogg', 'webm'].includes(file.filetype))\n  ) {\n    isAudio = true;\n  }\n}\n\n// Return updated data with is_audio flag\nreturn [{ json: { ...item, is_audio: isAudio } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -832,
+        -176
+      ],
+      "id": "1ef12ba9-0774-43e0-984f-84023d39f5ab",
+      "name": "detect audio type"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    transcript: $json[\"text\"]  // adjust key if necessary\n  }\n}]\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        -272
+      ],
+      "id": "efddad76-8963-49ff-8a34-213d78771b21",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c084dfd3-9bfe-4ad9-81a6-1004b2468a41",
+              "name": "thread_ts",
+              "value": "={{$json[\"message\"]?.[\"thread_ts\"] || $json[\"message\"]?.[\"ts\"] || $json[\"ts\"]}}\n",
+              "type": "string"
+            },
+            {
+              "id": "f70c0be0-d2b9-4957-9973-f112eac81b8c",
+              "name": "channel",
+              "value": "={{$json[\"channel\"] || $json[\"message\"]?.[\"channel\"] || $json[\"event\"]?.[\"channel\"]}}\n",
+              "type": "string"
+            },
+            {
+              "id": "97cd444c-a233-43b9-a42c-1ef964aad271",
+              "name": "user_text",
+              "value": "={{$json[\"text\"] || $json[\"message\"]?.[\"text\"]}}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1024,
+        -176
+      ],
+      "id": "7e2a7f26-f30a-4da3-a43f-eba77a71a67f",
+      "name": "thread context node"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api-inference.huggingface.co/models/openai/whisper-large-v3",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": ""
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        128,
+        -272
+      ],
+      "id": "2e94fb30-1b95-4008-9451-9eac19c20f9a",
+      "name": "audio to text"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "thread context node",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Build Plan": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Audio Gate": {
+      "main": [
+        [
+          {
+            "node": "Set Audio Meta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Build Plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Audio Meta": {
+      "main": [
+        [
+          {
+            "node": "Download Slack Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "detect audio type": {
+      "main": [
+        [
+          {
+            "node": "Audio Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Slack Audio": {
+      "main": [
+        [
+          {
+            "node": "audio to text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Generate Build Plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "thread context node": {
+      "main": [
+        [
+          {
+            "node": "detect audio type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "audio to text": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0486989a-aa1c-46d7-95c2-eb60b1707525",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "00d42f1eec9714acd570c783cd5172f0456b88a32a37c3ac6673350c4bde9747"
+  },
+  "id": "IiRCxNaS8EcHJ1sV",
+  "tags": []
+}
